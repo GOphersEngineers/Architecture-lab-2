@@ -12,6 +12,10 @@ func isOperator(c string) bool {
 
 // PrefixToPostfix converts
 func PrefixToPostfix(input string) (string, error) {
+	if input == "" {
+		return "", fmt.Errorf("invalid expression")
+	}
+
 	stack := []string{}
 	expression := strings.Split(input, " ")
 	flag := false

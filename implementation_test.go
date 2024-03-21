@@ -3,46 +3,56 @@ package lab2
 import (
 	"fmt"
 	"testing"
-	"strings"
-
-	. "gopkg.in/check.v1"
+	"gopkg.in/check.v1"
 )
 
-func Test(t *testing.T) { TestingT(t) }
+type MySuite struct{}
 
-type PrefixToPostfixSuite struct{}
+var _ = check.Suite(&MySuite{})
 
-var _ = Suite(&PrefixToPostfixSuite{})
+func Test(t *testing.T) { check.TestingT(t) }
 
-func (s *PrefixToPostfixSuite) TestPrefixToPostfix(c *C) {
-	testCases := []struct {
-		input    string
-		expected string
-		err      error
-	}{
-		{"+ 3 4", "3 4 +", nil},
-		{"* + 3 4 5", "3 4 + 5 *", nil},
-		{"- * + 3 4 5 6", "3 4 + 5 * 6 -", nil},
-		{"^ 2 3", "2 3 ^", nil},
-		{"^ 2 + 3 4", "2 3 4 + ^", nil},
-		{"^ + 2 3 4", "2 3 + 4 ^", nil},
-		{"", "", fmt.Errorf("invalid expression")},
-		{"3", "", fmt.Errorf("invalid expression")},
-		{"+ 3", "", fmt.Errorf("invalid expression")},
-		{"^ 2", "", fmt.Errorf("invalid expression")},
-		{"- * + 3 4 5", "", fmt.Errorf("invalid expression")},
-		{"^ 2 + 3 4 5", "", fmt.Errorf("invalid expression")},
-	}
+func (s *MySuite) TestIsOperator(c *check.C) {
+	c.Check(isOperator("+"), check.Equals, true)
+	c.Check(isOperator("-"), check.Equals, true)
+	c.Check(isOperator("*"), check.Equals, true)
+	c.Check(isOperator("/"), check.Equals, true)
+	c.Check(isOperator("^"), check.Equals, true)
+	c.Check(isOperator("1"), check.Equals, false)
+}
 
-	for _, tc := range testCases {
-		result, err := PrefixToPostfix(tc.input)
-		if tc.err != nil {
-			c.Assert(err, ErrorMatches, tc.err.Error())
-		} else {
-			c.Assert(err, IsNil)
-			c.Assert(strings.TrimSpace(result), Equals, strings.TrimSpace(tc.expected))
-		}
-	}
+func (s *MySuite) TestPrefixToPostfix(c *check.C) {
+	result, err := PrefixToPostfix("+ 1 2")
+	c.Check(err, check.IsNil)
+	c.Check(result, check.Equals, "1 2 +")
+
+	result, err = PrefixToPostfix("- * 3 4 5")
+	c.Check(err, check.IsNil)
+	c.Check(result, check.Equals, "3 4 * 5 -")
+
+	result, err = PrefixToPostfix("+ 1")
+	c.Check(err, check.NotNil)
+	c.Check(result, check.Equals, "")
+
+	result, err = PrefixToPostfix("+ - * 1 2 3 * / 4 5 6")
+	c.Check(err, check.IsNil)
+	c.Check(result, check.Equals, "2 1 * 3 - 4 5 / 6 * +")
+
+	result, err = PrefixToPostfix("+ - * 1 2 3 * / 4 5 6 7")
+	c.Check(err, check.ErrorMatches, "invalid expression")
+	c.Check(result, check.Equals, "")
+
+	result, err = PrefixToPostfix("")
+	c.Check(err, check.ErrorMatches, "invalid expression")
+	c.Check(result, check.Equals, "")
+
+	result, err = PrefixToPostfix("+ 3")
+	c.Check(err, check.ErrorMatches, "invalid expression")
+	c.Check(result, check.Equals, "")
+
+	result, err = PrefixToPostfix("^ 2")
+	c.Check(err, check.ErrorMatches, "invalid expression")
+	c.Check(result, check.Equals, "")
 }
 
 func ExamplePrefixToPostfix() {
