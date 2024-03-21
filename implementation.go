@@ -1,8 +1,8 @@
 package lab2
 
 import (
-	"fmt"
 	"strings"
+	"errors"
 )
 
 // cheks if passed string is math operation
@@ -10,10 +10,9 @@ func isOperator(c string) bool {
 	return strings.ContainsAny(c, "+-*/^")
 }
 
-// PrefixToPostfix converts
 func PrefixToPostfix(input string) (string, error) {
 	if input == "" {
-		return "", fmt.Errorf("invalid expression")
+		return "", errors.New("invalid expression")
 	}
 
 	stack := []string{}
@@ -23,7 +22,7 @@ func PrefixToPostfix(input string) (string, error) {
 	for i := len(expression) - 1; i >= 0; i-- {
 		if isOperator(expression[i]) {
 			if len(stack) < 2 {
-				return "", fmt.Errorf("invalid expression")
+				return "", errors.New("invalid expression")
 			}
 			operator1 := stack[len(stack)-1]
 			stack = stack[:len(stack)-1]
@@ -41,7 +40,7 @@ func PrefixToPostfix(input string) (string, error) {
 	}
 
 	if len(stack) != 1 {
-		return "", fmt.Errorf("invalid expression")
+		return "", errors.New("invalid expression")
 	}
 
 	return stack[len(stack)-1], nil

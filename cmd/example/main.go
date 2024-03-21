@@ -1,28 +1,63 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"os"
+	"flag"
+	"io"
+	"strings"
 
 	lab2 "github.com/GOphersEngineers/Architecture-lab-2"
 )
 
-var (
-	inputExpression = flag.String("e", "", "Expression to compute")
-	// TODO: Add other flags support for input and output configuration.
-)
-
 func main() {
+	var expr string
+	var inFile string
+	var outFile string
+
+	flag.StringVar(&expr, "e", "", "Expression to convert from prefix to postfix")
+	flag.StringVar(&inFile, "f", "", "File with expression to convert from prefix to postfix")
+	flag.StringVar(&outFile, "o", "", "File to write the result of conversion")
+
 	flag.Parse()
 
-	// TODO: Change this to accept input from the command line arguments as described in the task and
-	//       output the results using the ComputeHandler instance.
-	//       handler := &lab2.ComputeHandler{
-	//           Input: {construct io.Reader according the command line parameters},
-	//           Output: {construct io.Writer according the command line parameters},
-	//       }
-	//       err := handler.Compute()
+	var reader io.Reader
+	var writer io.Writer
 
-	res, _ := lab2.PrefixToPostfix("+ 2 2")
-	fmt.Println(res)
+	if expr != "" {
+		reader = strings.NewReader(expr)
+	} else if inFile != "" {
+		file, err := os.Open(inFile)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer file.Close()
+		reader = file
+	} else {
+		reader = os.Stdin
+	}
+
+	if outFile != "" {
+		file, err := os.Create(outFile)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer file.Close()
+		writer = file
+	} else {
+		writer = os.Stdout
+	}
+
+	handler := &lab2.ComputeHandler{
+		Input:  reader,
+		Output: writer,
+	}
+
+	err := handler.Compute()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
