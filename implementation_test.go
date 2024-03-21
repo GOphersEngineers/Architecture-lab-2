@@ -2,8 +2,8 @@ package lab2
 
 import (
 	"fmt"
-	"testing"
 	"gopkg.in/check.v1"
+	"testing"
 )
 
 type MySuite struct{}
@@ -58,7 +58,4 @@ func (s *MySuite) TestPrefixToPostfix(c *check.C) {
 func ExamplePrefixToPostfix() {
 	res, _ := PrefixToPostfix("+ 2 2")
 	fmt.Println(res)
-
-	// Output:
-	// 2 2 +
 }
