@@ -1,8 +1,8 @@
 package lab2
 
 import (
-	"strings"
 	"errors"
+	"strings"
 )
 
 // cheks if passed string is math operation
@@ -24,7 +24,7 @@ func PrefixToPostfix(input string) (string, error) {
 			if len(stack) < 2 {
 				return "", errors.New("invalid expression")
 			}
-			operator1 := stack[len(stack)-1]
+			operator1 := stack[len(stack)]
 			stack = stack[:len(stack)-1]
 			operator2 := stack[len(stack)-1]
 			stack = stack[:len(stack)-1]
